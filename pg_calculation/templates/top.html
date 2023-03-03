@@ -11,6 +11,8 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="">
+        <script type = "text/javascript" 
+        src = "{{ url_for('static', filename = 'toplistlib.js') }}" ></script>
     </head>
     <body>
         <!--[if lt IE 7]>
@@ -24,6 +26,7 @@
                 </tr>
             {% endfor %}
         </table>
+        <input type = "button" onclick = "add_data()" value = "View more" />
         <script src="" async defer></script>
     </body>
 </html>
