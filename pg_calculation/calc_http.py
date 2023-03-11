@@ -1,6 +1,6 @@
 import flask
+# from calclib import get_mult
 app=flask.Flask(__name__)
-
 
 @app.route('/top')
 def top():
@@ -10,7 +10,21 @@ def top():
 
 @app.route('/')
 def startpage():
-   return flask.render_template("calc.html")
+   print("all cookies:")
+   print(flask.request.cookies)
+   return flask.render_template("calc.html",name=flask.request.cookies.get('username'))
+
+@app.route('/name')
+def name():
+   return flask.render_template("setname.html")
+
+@app.route('/namecookie',methods = ['POST'])
+def set_name():
+   print("seems to be working")
+   name=flask.request.form['username']
+   response=flask.make_response(flask.redirect(flask.url_for("startpage")))
+   response.set_cookie('username',name)
+   return response
    
 @app.route('/result',methods = ['POST', 'GET'])
 def result():
