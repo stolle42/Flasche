@@ -1,6 +1,5 @@
 import flask
 # from calclib import get_mult
-from flask import Flask, render_template, request, make_response
 
 app=flask.Flask(__name__)
 
@@ -14,8 +13,28 @@ def top():
 def startpage():
    print("all cookies:")
    print(flask.request.cookies)
-   return flask.render_template("calc.html",level=flask.request.cookies.get('level'))
+   if "username" in flask.session:
+      level=flask.request.cookies.get('level')
+      username=flask.session.get('username')
+      return flask.render_template("calc.html",level=level,username=username)
+   else:
+      return flask.redirect(flask.url_for("login"))
 
+@app.route('/login',methods=['GET','POST'])
+def login():
+      if flask.request.method=='POST':
+         flask.session['username']=flask.request.form['formForUsername']
+         return flask.redirect(flask.url_for("startpage"))
+      else:
+         return flask.render_template("login.html")
+   
+@app.route('/logout')
+def logout():
+   flask.session.pop('username')
+   return flask.redirect(flask.url_for("startpage"))
+   
+   
+   
 @app.route('/level')
 def level():
    return flask.render_template("setlevel.html")
@@ -23,7 +42,7 @@ def level():
 @app.route('/setcookie', methods = ['POST'])
 def setcookie():
    response=flask.make_response( flask.redirect(flask.url_for("startpage")))
-   response.set_cookie('level', request.form['level_form'])
+   response.set_cookie('level', flask.request.form['level_form'])
    
    return response
    
@@ -36,4 +55,10 @@ def result():
       return response
 
 if __name__=="__main__":
-    app.run(host='localhost',port=5000, debug = True) #What does that mean? Set to ‘0.0.0.0’ to have server available externally
+   app.secret_key='your_secret_key'
+   app.config['SESSION_COOKIE_NAME'] = 'your_session_cookie_name'
+   app.config['SESSION_COOKIE_SECURE'] = True  # only send session cookies over HTTPS
+   app.config['SESSION_COOKIE_HTTPONLY'] = True  # prevent JavaScript from accessing session cookies
+   app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # protect against cross-site request forgery (CSRF) attacks
+   app.config['SESSION_COOKIE_LIFETIME'] = None
+   app.run(host='localhost',port=5000, debug = True)
