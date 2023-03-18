@@ -131,3 +131,6 @@ dmypy.json
 
 # Playground
 playground/
+
+# Don't commit uploads
+uploads/*
