@@ -18,8 +18,8 @@ def startpage():
       userIdx=flask.session.get('userIdx')
       return flask.render_template("calc.html",level=level,username=users[userIdx])
    else:
-      return flask.render_template("notloggedin.html")
-      # return flask.redirect(flask.url_for("login"))
+      msg=flask.get_flashed_messages()
+      return flask.render_template("notloggedin.html",message=msg[0] if msg else "Welcome!")
 
 @app.route('/login',methods=['GET','POST'])
 def login():
@@ -31,7 +31,7 @@ def login():
          else: 
             flask.abort(401)
       else:
-         return flask.render_template("login.html")
+         return flask.render_template("login.html",)
    
 @app.route('/signup')
 def signup():
@@ -39,9 +39,12 @@ def signup():
    
 @app.route('/logout')
 def logout():
+   flask.flash("You logged out sucessfuly!")
    flask.session.pop('userIdx')
    return flask.redirect(flask.url_for("startpage"))
    
+# getFlashMessage(idx):
+#    ree
    
    
 @app.route('/level')
@@ -57,11 +60,13 @@ def setcookie():
    
 @app.route('/result',methods = ['POST', 'GET'])
 def result():
-   if flask.request.method == 'POST':
+   if flask.request.method == 'POST' and flask.session['userIdx']: #do not allow result view when not logged in
       user_answers = flask.request.form
       response=flask.make_response( flask.render_template("result.html",answers = user_answers,results={"m1":"161"}))
       response.set_cookie('level',user_answers["m1"])
       return response
+   else:
+      flask.abort(401)
 
 if __name__=="__main__":
    app.secret_key='your_secret_key'
