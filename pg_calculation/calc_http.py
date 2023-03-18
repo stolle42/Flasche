@@ -1,7 +1,7 @@
 import flask
-# from calclib import get_mult
 
 app=flask.Flask(__name__)
+users=['admin','mongo','opfer','autist']
 
 @app.route('/top')
 def top():
@@ -13,24 +13,33 @@ def top():
 def startpage():
    print("all cookies:")
    print(flask.request.cookies)
-   if "username" in flask.session:
+   if "userIdx" in flask.session:
       level=flask.request.cookies.get('level')
-      username=flask.session.get('username')
-      return flask.render_template("calc.html",level=level,username=username)
+      userIdx=flask.session.get('userIdx')
+      return flask.render_template("calc.html",level=level,username=users[userIdx])
    else:
-      return flask.redirect(flask.url_for("login"))
+      return flask.render_template("notloggedin.html")
+      # return flask.redirect(flask.url_for("login"))
 
 @app.route('/login',methods=['GET','POST'])
 def login():
       if flask.request.method=='POST':
-         flask.session['username']=flask.request.form['formForUsername']
-         return flask.redirect(flask.url_for("startpage"))
+         uname=flask.request.form['formForUsername']
+         if uname in users:
+            flask.session['userIdx']=users.index(uname)
+            return flask.redirect(flask.url_for("startpage"))
+         else: 
+            flask.abort(401)
       else:
          return flask.render_template("login.html")
    
+@app.route('/signup')
+def signup():
+   return flask.abort(501)
+   
 @app.route('/logout')
 def logout():
-   flask.session.pop('username')
+   flask.session.pop('userIdx')
    return flask.redirect(flask.url_for("startpage"))
    
    
